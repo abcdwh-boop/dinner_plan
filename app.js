@@ -341,8 +341,9 @@ function onboardView() {
     </button>`).join("") +
     `<h3 class="gh">우리 집에 딱 맞게 만들기</h3>
     <div class="card pad">
-      <p class="hint" style="margin-top:0">아래 문구를 복사해 아무 채팅 AI에 붙여넣고, 빈칸을 채워 대화해 보세요.
-        받은 결과를 [메뉴관리 &gt; 백업 &gt; 가져오기]에 붙여넣으면 그대로 메뉴가 됩니다.
+      <p class="hint" style="margin-top:0">복사한 문구를 아무 채팅 AI에 붙여넣으세요.
+        맨 위 다섯 줄을 우리 집 이야기로 바꾸시면 되고, <b>잘 모르겠는 줄은 지우면 AI가 하나씩 물어봅니다.</b>
+        대화로 다듬은 뒤 받은 결과를 [메뉴관리 &gt; 백업 &gt; 가져오기]에 붙여넣으면 그대로 메뉴가 됩니다.
         API 키나 결제는 필요 없습니다.</p>
       <div class="acts">
         <button class="btn" data-a="copyprompt">AI에게 보낼 문구 복사</button>
@@ -715,7 +716,8 @@ function dataView() {
 
   <h3 class="gh">스타터팩</h3>
   <div class="card pad">
-    <p class="hint" style="margin-top:0">다른 팩의 메뉴를 더하거나, AI에게 보낼 문구를 다시 복사할 수 있습니다.</p>
+    <p class="hint" style="margin-top:0">다른 팩의 메뉴를 더하거나, AI에게 보낼 문구를 다시 복사할 수 있습니다.
+      문구를 붙여넣은 뒤 맨 위 다섯 줄만 우리 집 이야기로 바꾸면 됩니다.</p>
     <div class="acts"><button class="btn ghost" data-a="reonboard">스타터팩 다시 보기</button>
       <button class="btn ghost" data-a="copyprompt">AI 문구 복사</button></div>
   </div>
@@ -1098,7 +1100,7 @@ document.addEventListener("click", (e) => {
   else if (a === "togglebase") { S.hideBase = !S.hideBase; save();
     toast(S.hideBase ? "기본 메뉴를 숨겼어요" : "기본 메뉴 46개를 다시 넣었어요"); }
   else if (a === "copyprompt") {
-    copyText(AI_PROMPT).then((ok) => toast(ok ? "복사했어요. 채팅 AI에 붙여넣으세요" : "복사에 실패했어요"));
+    copyText(AI_PROMPT).then((ok) => toast(ok ? "복사했어요. 맨 위 다섯 줄을 우리 집 이야기로 바꿔 주세요" : "복사에 실패했어요"));
   }
   else if (a === "reonboard") { V.screen = "home"; S.onboarded = false; save(); }
   else if (a === "expfile") {
