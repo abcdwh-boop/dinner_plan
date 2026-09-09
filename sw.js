@@ -1,5 +1,5 @@
-const V = "dinner-v5-2";
-const FILES = ["./", "index.html", "styles.css", "data.js", "packs.js", "app.js",
+const V = "dinner-v6-0";
+const FILES = ["./", "index.html", "styles.css", "themes.js", "data.js", "packs.js", "app.js",
   "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", (e) => {

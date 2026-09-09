@@ -10,7 +10,7 @@ const CATS = Object.keys(SHELF);
 const FRESH = {
   v: 2, weekStart: null, plan: null, fridge: [], checked: {}, extra: [],
   trash: [], loved: [], excluded: [], custom: [], edits: {}, prices: {},
-  onboarded: false, hideBase: false, plans: {}, items: [], lastBackup: null, archive: [], settings: { sideDay: "수", outDay: "금", people: 3, useSoup: true },
+  onboarded: false, hideBase: false, plans: {}, items: [], lastBackup: null, archive: [], settings: { sideDay: "수", outDay: "금", people: 3, useSoup: true, theme: DEFAULT_THEME },
 };
 
 let S = loadState();
@@ -680,12 +680,47 @@ function itemView() {
 function menuView() {
   if (V.form) return formView();
   // 백업은 식단과 무관한 관리 기능이라 따로 떨어뜨리고 색도 다르게 준다
-  const tabs = [["list", "메뉴", ""], ["item", "재료", ""], ["data", "백업", " alt"]];
+  const tabs = [["list", "메뉴", ""], ["item", "재료", ""], ["theme", "테마", ""], ["data", "백업", " alt"]];
   let h = `<div class="tabs">${tabs.map(([k, l, cls]) =>
     `<button class="tb${cls}${V.sub === k ? " on" : ""}" data-a="sub:${k}">${l}</button>`).join("")}</div>`;
   if (V.sub === "data") return h + dataView();
+  if (V.sub === "theme") return h + themeView();
   if (V.sub === "item") return h + itemView();
   return h + menuListView();
+}
+
+/* ── 테마 고르기 ──
+   미리보기는 테마 색을 인라인으로 박아 넣는다.
+   지금 적용된 테마가 무엇이든 아홉 칸이 각자 제 색으로 보여야 하기 때문이다. */
+function themeView() {
+  const cur = S.settings.theme || DEFAULT_THEME;
+  const cards = THEMES.map((t) => {
+    const on = t.id === cur;
+    return `<button class="thcard${on ? " on" : ""}" data-a="settheme:${t.id}">
+      <div class="thprev">
+        <div class="hd" style="background:linear-gradient(135deg,${t.h[0]},${t.h[1]});color:${t.h[2]}">저녁 식탁</div>
+        <div class="bd" style="background:${t.cv}">
+          <div class="mini">
+            <span style="color:${t.ink}">수요일 · 된장국</span>
+            <div class="st" style="color:${t.gd}">★★★★☆</div>
+          </div>
+          <div class="chips">
+            <span style="background:${t.lt};color:${t.p}">장보기</span>
+            <span style="background:${t.a};color:${t.oa}">냉장고</span>
+          </div>
+        </div>
+      </div>
+      <div class="thfoot">
+        <b>${t.name}</b>
+        ${on ? '<span class="now">사용 중</span>' : `<i>${t.mood}</i>`}
+      </div>
+    </button>`;
+  }).join("");
+
+  return `<p class="lead">마음에 드는 색을 고르면 앱 전체 색이 바로 바뀝니다.
+    언제든 다시 바꿀 수 있고, 식단이나 메뉴 데이터에는 영향을 주지 않아요.</p>
+  <div class="thgrid">${cards}</div>
+  <p class="hint">고른 테마는 이 기기에만 저장됩니다. 다른 기기에서 열면 기본 초록으로 시작해요.</p>`;
 }
 
 function dataView() {
@@ -1042,6 +1077,9 @@ document.addEventListener("click", (e) => {
     S.fridge.push({ id: Math.random().toString(36).slice(2), n: TMP.fr.n.trim(), c: TMP.fr.c, q: TMP.fr.q, bought: today() });
     TMP.fr.n = ""; TMP.fr.q = ""; save();
   }
+  else if (a === "settheme") {
+    S.settings.theme = x; save(); applyTheme(x);
+    toast(themeById(x).name + "(으)로 바꿨어요"); }
   else if (a === "sub") { V.sub = x; V.openRec = null; V.wipe = false; V.sug = null; V.focus = null; }
   else if (a === "cond") V.cond = !V.cond;
   else if (a === "wshift") { V.week = addDays(targetWeek(), Number(x)); V.open = null; }
@@ -1213,6 +1251,7 @@ document.getElementById("totop").addEventListener("click", function () {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
+applyTheme(S.settings.theme || DEFAULT_THEME);
 render();
 pushGuard();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
