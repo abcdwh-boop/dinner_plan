@@ -15,24 +15,24 @@
 /* ── 토큰 ── */
 :root{
   /* 4-tier green — 채도를 낮춘 자연스러운 녹색 */
-  --starbucks:#4A5D4E;
-  --accent:#5E7460;
-  --house:#333F35;
-  --uplift:#6B7F6D;
-  --green-light:#DDE4DC;
-  --green-soft:#EAEFE8;
-  --green-muted:#8FA492;
-  --green-wash:rgba(74,93,78,0.06);
+  --starbucks:#1b5e3b;
+  --accent:#2e7d5a;
+  --house:#1a3a2e;
+  --uplift:#3a6b56;
+  --green-light:#dceee6;
+  --green-soft:#e8f5ee;
+  --green-muted:#5a9a7c;
+  --green-wash:rgba(46,125,90,0.06);
 
   /* gold — 별점 전용 */
   --gold:#c49a3c;
   --gold-light:#dfc49d;
 
   /* surface */
-  --canvas:#F5F6F1;
-  --ceramic:#EBEDE6;
+  --canvas:#f4f2ed;
+  --ceramic:#edebe6;
   --card:#ffffff;
-  --cool:#FAFBF7;
+  --cool:#f9f9f7;
 
   /* text */
   --ink:rgba(0,0,0,0.87);
@@ -43,13 +43,13 @@
   /* semantic */
   --red:#c82014;
   --red-tint:rgba(200,32,20,0.08);
-  --line:#D5DAD3;
+  --line:#d6dbde;
 
   /* radius */
   /* 아래는 예전 변수 이름을 현재 팔레트에 연결한 것.
      나중에 추가된 탭바·검색·주 선택 CSS가 이 이름들을 쓴다. */
-  --bg:#F5F6F1;
-  --green:#4A5D4E;
+  --bg:#f4f2ed;
+  --green:#1b5e3b;
   --yolk:#c49a3c;
   --kimchi:#c82014;
 
@@ -59,7 +59,7 @@
   /* shadow */
   --card-shadow:0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.08);
   --nav-shadow:0 1px 4px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-  --hero-shadow:0 4px 16px rgba(74,93,78,0.14), 0 1px 4px rgba(0,0,0,0.06);
+  --hero-shadow:0 4px 16px rgba(27,94,59,0.12), 0 1px 4px rgba(0,0,0,0.06);
 }
 
 *{box-sizing:border-box}
@@ -398,11 +398,11 @@ h3.gh{
 }
 /* 백업 — 식단과 무관한 관리 기능. 오른쪽 끝에 회색으로 떨어뜨린다 */
 .tb.alt{
-  margin-left:auto; background:transparent;
-  border:1px dashed var(--line); color:var(--soft); font-weight:500;
+  margin-left:auto; background:#8A8A82; border:1px solid #8A8A82;
+  color:#fff; font-weight:600;
 }
 .tb.alt.on{
-  background:#5f5f59; border:1px solid #5f5f59; color:#fff; font-weight:700;
+  background:#4A4A44; border-color:#4A4A44; color:#fff; font-weight:700;
 }
 
 .mi{border-bottom:1px solid var(--canvas)}
