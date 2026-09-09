@@ -700,8 +700,8 @@ function themeView() {
       <div class="thprev">
         <div class="hd" style="background:linear-gradient(135deg,${t.h[0]},${t.h[1]});color:${t.h[2]}">저녁 식탁</div>
         <div class="bd" style="background:${t.cv}">
-          <div class="mini">
-            <span style="color:${t.ink}">수요일 · 된장국</span>
+          <div class="mini" style="background:${t.hb};border:1px solid ${t.hl}">
+            <span style="color:${t.hf}">수요일 · 된장국</span>
             <div class="st" style="color:${t.gd}">★★★★☆</div>
           </div>
           <div class="chips">
