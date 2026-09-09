@@ -10,7 +10,7 @@ const CATS = Object.keys(SHELF);
 const FRESH = {
   v: 2, weekStart: null, plan: null, fridge: [], checked: {}, extra: [],
   trash: [], loved: [], excluded: [], custom: [], edits: {}, prices: {},
-  onboarded: false, hideBase: false, plans: {}, items: [], lastBackup: null, archive: [], settings: { sideDay: "수", outDay: "금", people: 3, useSoup: true, theme: DEFAULT_THEME },
+  onboarded: false, hideBase: false, plans: {}, items: [], lastBackup: null, archive: [], settings: { sideDay: "수", outDay: "금", people: 3, useSoup: true, theme: DEFAULT_THEME, custom: null },
 };
 
 let S = loadState();
@@ -691,35 +691,63 @@ function menuView() {
 
 /* ── 테마 고르기 ──
    미리보기는 테마 색을 인라인으로 박아 넣는다.
-   지금 적용된 테마가 무엇이든 아홉 칸이 각자 제 색으로 보여야 하기 때문이다. */
-function themeView() {
-  const cur = S.settings.theme || DEFAULT_THEME;
-  const cards = THEMES.map((t) => {
-    const on = t.id === cur;
-    return `<button class="thcard${on ? " on" : ""}" data-a="settheme:${t.id}">
-      <div class="thprev">
-        <div class="hd" style="background:linear-gradient(135deg,${t.h[0]},${t.h[1]});color:${t.h[2]}">저녁 식탁</div>
-        <div class="bd" style="background:${t.cv}">
-          <div class="mini" style="background:${t.hb};border:1px solid ${t.hl}">
-            <span style="color:${t.hf}">수요일 · 된장국</span>
-            <div class="st" style="color:${t.gd}">★★★★☆</div>
-          </div>
-          <div class="chips">
-            <span style="background:${t.lt};color:${t.p}">장보기</span>
-            <span style="background:${t.a};color:${t.oa}">냉장고</span>
-          </div>
+   지금 적용된 테마가 무엇이든 각 칸이 자기 색으로 보여야 하기 때문이다. */
+function thCardInner(t) {
+  return `<div class="thprev">
+      <div class="hd" style="background:linear-gradient(135deg,${t.h[0]},${t.h[1]});color:${t.h[2]}">저녁 식탁</div>
+      <div class="bd" style="background:${t.cv}">
+        <div class="mini" style="background:${t.hb};border:1px solid ${t.hl}">
+          <span style="color:${t.hf}">수요일 · 된장국</span>
+          <div class="st" style="color:${t.gd}">★★★★☆</div>
+        </div>
+        <div class="chips">
+          <span style="background:${t.lt};color:${t.p}">장보기</span>
+          <span style="background:${t.a};color:${t.oa}">냉장고</span>
         </div>
       </div>
-      <div class="thfoot">
-        <b>${t.name}</b>
-        ${on ? '<span class="now">사용 중</span>' : `<i>${t.mood}</i>`}
-      </div>
-    </button>`;
-  }).join("");
+    </div>
+    <div class="thfoot"><b>${t.name}</b><i>${t.mood}</i></div>`;
+}
+
+function customSpec() { return Object.assign({}, CUSTOM_DEFAULT, S.settings.custom || {}); }
+function currentTheme() {
+  const id = S.settings.theme || DEFAULT_THEME;
+  return id === "custom" ? buildTheme(customSpec()) : id;
+}
+
+const CFIELDS = [["head", "헤더"], ["accent", "강조색"], ["hero", "오늘 카드"], ["line", "카드 테두리"]];
+
+function themeView() {
+  const cur = S.settings.theme || DEFAULT_THEME;
+  const spec = customSpec();
+  const mine = buildTheme(spec);
+
+  const cards = THEMES.map((t) =>
+    `<button class="thcard${t.id === cur ? " on" : ""}" data-a="settheme:${t.id}">${thCardInner(t)}</button>`
+  ).join("") +
+    `<button class="thcard${cur === "custom" ? " on" : ""}" id="thcustom" data-a="settheme:custom">${thCardInner(mine)}</button>`;
+
+  const fields = CFIELDS.map(([k, label]) =>
+    `<label class="cf">
+      <input type="color" data-cf="${k}" value="${spec[k]}">
+      <i>${label}</i><b>${spec[k].toUpperCase()}</b>
+    </label>`).join("");
 
   return `<p class="lead">마음에 드는 색을 고르면 앱 전체 색이 바로 바뀝니다.
-    언제든 다시 바꿀 수 있고, 식단이나 메뉴 데이터에는 영향을 주지 않아요.</p>
+    식단이나 메뉴 데이터에는 영향을 주지 않아요.</p>
   <div class="thgrid">${cards}</div>
+
+  <h3 class="gh">내 색으로 만들기</h3>
+  <div class="card pad">
+    <div class="cfs">${fields}</div>
+    <p class="hint" style="margin-bottom:0">네 가지만 고르면 나머지 스무 개 남짓한 색은 알아서 계산합니다.
+      글씨색은 바탕과의 대비를 재서 읽히는 진하기까지 자동으로 밀어주니, 어떤 색을 골라도 글씨가 묻히지는 않아요.
+      고르는 즉시 화면에 적용되고 저장됩니다.</p>
+    <div class="acts"><button class="btn ghost" data-a="randtheme">무작위로 섞어보기</button></div>
+    <p class="hint"><b>잘 안 나올 때</b> — 노란 계열을 <b>강조색</b>으로 고르면 버튼이나 탭 같은 진한 부분이
+      갈색으로 보입니다. 노랑을 밝게 쓰고 싶으면 <b>헤더</b>에 넣고, 강조색은 진한 색으로 두세요.</p>
+  </div>
+
   <p class="hint">고른 테마는 이 기기에만 저장됩니다. 다른 기기에서 열면 기본 초록으로 시작해요.</p>`;
 }
 
@@ -1009,6 +1037,40 @@ document.addEventListener("input", (e) => {
     V.sug = e.target.dataset.ing; V.focus = e.target.id; lazyRender();
   }
 });
+/* ── 색 고르기 ──
+   색을 끌어 고르는 동안 input 이벤트가 쉴 새 없이 들어온다.
+   여기서 render()를 부르면 고르던 창이 닫히므로, 바뀐 자리만 직접 갈아끼운다. */
+let saveT = null;
+function lazySave() { clearTimeout(saveT); saveT = setTimeout(save, 300); }
+
+function randomSpec() {
+  const h = Math.floor(Math.random() * 360);
+  const h2 = (h + 120 + Math.floor(Math.random() * 120)) % 360;   // 헤더와 충분히 벌어진 색
+  return {
+    head: hsl(h, 60 + Math.random() * 25, 76 + Math.random() * 8),
+    accent: hsl(h2, 55 + Math.random() * 30, 42 + Math.random() * 14),
+    hero: hsl(h2, 65 + Math.random() * 25, 92 + Math.random() * 4),
+    line: hsl(42 + Math.random() * 12, 60 + Math.random() * 20, 42 + Math.random() * 8),
+  };
+}
+
+document.addEventListener("input", (e) => {
+  const k = e.target.dataset.cf; if (!k) return;
+  const spec = customSpec();
+  spec[k] = e.target.value;
+  S.settings.custom = spec;
+  S.settings.theme = "custom";
+  applyTheme(buildTheme(spec));
+  lazySave();
+
+  const tag = e.target.parentNode.querySelector("b");
+  if (tag) tag.textContent = spec[k].toUpperCase();
+  const mine = document.getElementById("thcustom");
+  if (mine) mine.innerHTML = thCardInner(buildTheme(spec));
+  document.querySelectorAll(".thcard").forEach((el) =>
+    el.classList.toggle("on", el.id === "thcustom"));
+});
+
 document.addEventListener("change", (e) => {
   const p = e.target.dataset.price;
   if (p) { S.prices[p] = Number(e.target.value) || 0; save(); }
@@ -1078,8 +1140,11 @@ document.addEventListener("click", (e) => {
     TMP.fr.n = ""; TMP.fr.q = ""; save();
   }
   else if (a === "settheme") {
-    S.settings.theme = x; save(); applyTheme(x);
-    toast(themeById(x).name + "(으)로 바꿨어요"); }
+    S.settings.theme = x; save(); applyTheme(currentTheme());
+    toast((x === "custom" ? "내 테마" : themeById(x).name) + "(으)로 바꿨어요"); }
+  else if (a === "randtheme") {
+    S.settings.custom = randomSpec(); S.settings.theme = "custom";
+    save(); applyTheme(currentTheme()); }
   else if (a === "sub") { V.sub = x; V.openRec = null; V.wipe = false; V.sug = null; V.focus = null; }
   else if (a === "cond") V.cond = !V.cond;
   else if (a === "wshift") { V.week = addDays(targetWeek(), Number(x)); V.open = null; }
@@ -1251,7 +1316,7 @@ document.getElementById("totop").addEventListener("click", function () {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-applyTheme(S.settings.theme || DEFAULT_THEME);
+applyTheme(currentTheme());
 render();
 pushGuard();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});

@@ -766,3 +766,20 @@ h3.gh.sticky{
   font-size:10px; font-weight:700; color:var(--accent);
   background:var(--green-light); border-radius:50px; padding:2px 8px;
 }
+
+/* 색 고르기 */
+.cfs{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin-bottom:14px}
+.cf{
+  display:flex; align-items:center; gap:9px;
+  border:1px solid var(--line); border-radius:12px; padding:8px 10px;
+  background:var(--cool); cursor:pointer;
+}
+.cf input[type=color]{
+  width:34px; height:34px; flex:none; padding:0; cursor:pointer;
+  border:1px solid var(--line); border-radius:9px; background:none;
+}
+.cf input[type=color]::-webkit-color-swatch-wrapper{padding:2px}
+.cf input[type=color]::-webkit-color-swatch{border:none; border-radius:7px}
+.cf input[type=color]::-moz-color-swatch{border:none; border-radius:7px}
+.cf i{font-style:normal; font-size:13px; font-weight:600; color:var(--ink); flex:1; min-width:0}
+.cf b{font-size:10.5px; font-weight:600; color:var(--soft); letter-spacing:.02em}
