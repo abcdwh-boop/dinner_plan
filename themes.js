@@ -34,18 +34,6 @@ const THEMES = [
     rgb: "46,125,90",
   },
   {
-    id: "sage", name: "세이지 안개", mood: "차분",
-    p: "#3E6B5C", a: "#5C8B7B", dp: "#23302A", up: "#6E9A8A",
-    lt: "#E0EAE4", sf: "#EDF3EF", mu: "#7FA396",
-    gd: "#B99A55", gdl: "#DCC9A0",
-    cv: "#F3F4F1", cr: "#ECEEEA", cl: "#FAFBF9",
-    ink: "rgba(0,0,0,0.85)", sft: "rgba(0,0,0,0.50)", ln: "#DDE2DC", rd: "#B4483F",
-    oa: "#ffffff",
-    hb: "#E6EEE9", hf: "#22332C", hfs: "#55685F", hl: "#B99A55",
-    h: ["#3E6B5C", "#5C8B7B", "#ffffff", "rgba(255,255,255,0.78)"],
-    rgb: "92,139,123",
-  },
-  {
     id: "dawn", name: "새벽 티", mood: "차분",
     p: "#2F5D63", a: "#4C848B", dp: "#1E2E30", up: "#63979E",
     lt: "#DCE9EA", sf: "#EBF3F4", mu: "#79A6AC",
@@ -70,30 +58,6 @@ const THEMES = [
     rgb: "226,58,94",
   },
   {
-    id: "lemonpop", name: "레몬 팝", mood: "발랄",
-    p: "#C7274E", a: "#E23A5E", dp: "#4A1020", up: "#FF637E",
-    lt: "#FFF3C4", sf: "#FFF9E4", mu: "#F0A9B9",
-    gd: "#E8A200", gdl: "#F7D98F",
-    cv: "#FFFDF5", cr: "#F7F2E4", cl: "#FFFEFA",
-    ink: "#33212A", sft: "#8A7078", ln: "#EFE3CB", rd: "#C2410C",
-    oa: "#ffffff",
-    hb: "#FFE4E9", hf: "#8E1330", hfs: "#8A4C5C", hl: "#D9A11E",
-    h: ["#FFD24A", "#FFDD6B", "#B81E45", "rgba(150,25,55,0.72)"],
-    rgb: "226,58,94",
-  },
-  {
-    id: "lemonmint", name: "레몬 온 민트", mood: "발랄",
-    p: "#0E7C63", a: "#14B8A6", dp: "#0A3B32", up: "#4FD1C0",
-    lt: "#D6F5EA", sf: "#E9FBF5", mu: "#7FD5AD",
-    gd: "#E09B00", gdl: "#F5D98F",
-    cv: "#FFFEF7", cr: "#F5F2E4", cl: "#FFFFFC",
-    ink: "#14322B", sft: "#6D8A82", ln: "#E7E6D4", rd: "#D6453B",
-    oa: "#06342C",
-    hb: "#D9F3EA", hf: "#0A4136", hfs: "#3F6A5E", hl: "#D19A1C",
-    h: ["#FEF08A", "#FFF6B4", "#0E7C63", "rgba(14,124,99,0.72)"],
-    rgb: "20,184,166",
-  },
-  {
     id: "mintlemon", name: "민트 온 레몬", mood: "발랄",
     p: "#0B5F4C", a: "#FFCB40", dp: "#08362C", up: "#4FD1C0",
     lt: "#FEF08A", sf: "#FFF9D6", mu: "#7FD5AD",
@@ -104,42 +68,6 @@ const THEMES = [
     hb: "#FFF7C9", hf: "#0B4F3E", hfs: "#4A6B5E", hl: "#C08A1E",
     h: ["#7FD5AD", "#96DFBC", "#0B4F3E", "rgba(11,79,62,0.72)"],
     rgb: "11,95,76",
-  },
-  {
-    id: "limeamber", name: "라임 온 앰버", mood: "발랄",
-    p: "#3D6B12", a: "#5E8F22", dp: "#1C3208", up: "#7FB534",
-    lt: "#ECFBD0", sf: "#F4FDE6", mu: "#A8CE72",
-    gd: "#E8A200", gdl: "#F5D98F",
-    cv: "#FBFDF4", cr: "#F1F4E8", cl: "#FDFFFA",
-    ink: "#23330F", sft: "#74826A", ln: "#E2E9D2", rd: "#C2410C",
-    oa: "#ffffff",
-    hb: "#EDF8D8", hf: "#2E5210", hfs: "#506B3A", hl: "#C79B22",
-    h: ["#DEFAA8", "#E9FCC6", "#3D6B12", "rgba(61,107,18,0.72)"],
-    rgb: "94,143,34",
-  },
-  {
-    id: "peachmint", name: "피치 온 민트", mood: "포근",
-    p: "#B02A4E", a: "#14B8A6", dp: "#4A1020", up: "#4FD1C0",
-    lt: "#FFE3E7", sf: "#FFF1F3", mu: "#F0A9B9",
-    gd: "#E09B00", gdl: "#F5D98F",
-    cv: "#FFFAFB", cr: "#F7EFF0", cl: "#FFFDFD",
-    ink: "#331A22", sft: "#8A6B72", ln: "#F0DFE2", rd: "#C2410C",
-    oa: "#06342C",
-    hb: "#FFE3E7", hf: "#7A1734", hfs: "#84505E", hl: "#D9A11E",
-    h: ["#FECDD3", "#FFDEE2", "#B02A4E", "rgba(176,42,78,0.70)"],
-    rgb: "176,42,78",
-  },
-  {
-    id: "creamrose", name: "크림 온 로즈", mood: "포근",
-    p: "#C0264F", a: "#E23A5E", dp: "#4A1020", up: "#FF637E",
-    lt: "#FFE1E7", sf: "#FFF0F3", mu: "#F0A9B9",
-    gd: "#E09B00", gdl: "#F5D98F",
-    cv: "#FFFDF4", cr: "#F6F1E2", cl: "#FFFEF9",
-    ink: "#33222A", sft: "#8A7078", ln: "#EEE4C9", rd: "#C2410C",
-    oa: "#ffffff",
-    hb: "#FFE7EC", hf: "#8E1330", hfs: "#8A4C5C", hl: "#D9A11E",
-    h: ["#FFF4A0", "#FFF9C6", "#C0264F", "rgba(192,38,79,0.70)"],
-    rgb: "192,38,79",
   },
 ];
 
@@ -301,3 +229,10 @@ function buildTheme(spec) {
     rgb: _rgb(p).join(","),
   };
 }
+
+/* 「딸기 라떼」 — 직접 만든 테마를 프리셋으로 굳힌 것.
+   네 색만 주고 나머지는 buildTheme이 뽑는다. */
+THEMES.push(Object.assign(
+  buildTheme({ head: "#F2ABA0", accent: "#F78359", hero: "#FFFDF5", line: "#FF937D" }),
+  { id: "strawlatte", name: "딸기 라떼", mood: "포근" }
+));

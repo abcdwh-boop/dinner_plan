@@ -489,6 +489,29 @@ function dayDetail(d, p) {
   return h;
 }
 
+/* 직접 추가 — 목록 맨 아래에 있으면 매번 끝까지 내려가야 해서 위로 올렸다.
+   다만 늘 펼쳐 두면 정작 봐야 할 목록이 밀려나므로, 눌러서 펴는 방식으로 둔다. */
+function quickAdd(kind) {
+  const open = V.quickAdd === kind;
+  const label = kind === "shop" ? "직접 추가" : "직접 넣기";
+  if (!open) {
+    return `<div class="sortrow qa"><span class="dim">${kind === "shop"
+      ? "목록에 없는 것도 넣을 수 있어요" : "장보기를 거치지 않은 재료도 넣을 수 있어요"}</span>
+      <button class="btn small" data-a="qa:${kind}">＋ ${label}</button></div>`;
+  }
+  const body = kind === "shop"
+    ? `<div class="frow ingrow">${ingInput("ex.n", TMP.ex.n, "재료 이름 (예: 우유)")}
+        <input data-f="ex.q" value="${esc(TMP.ex.q)}" class="w50">
+        <select data-f="ex.u" class="w70">${UNITS.map((u) => `<option${u === TMP.ex.u ? " selected" : ""}>${u}</option>`).join("")}</select>
+        <select data-f="ex.c" class="w80">${CATS.map((c) => `<option${c === TMP.ex.c ? " selected" : ""}>${c}</option>`).join("")}</select></div>`
+    : `<div class="frow ingrow">${ingInput("fr.n", TMP.fr.n, "재료 이름")}
+        <input data-f="fr.q" value="${esc(TMP.fr.q)}" placeholder="수량" class="w70">
+        <select data-f="fr.c" class="w80">${CATS.map((c) => `<option${c === TMP.fr.c ? " selected" : ""}>${c}</option>`).join("")}</select></div>`;
+  return `<div class="card pad qaopen"><div class="fl">${label}</div>${body}
+    <div class="acts"><button class="btn small" data-a="${kind === "shop" ? "addextra" : "fridgeadd"}">${kind === "shop" ? "목록에 넣기" : "냉장고에 넣기"}</button>
+      <button class="btn ghost small" data-a="qa:">닫기</button></div></div>`;
+}
+
 function shopView() {
   const ws = targetWeek();
   if (!planOf(ws)) return weekBar() +
@@ -500,6 +523,7 @@ function shopView() {
   let h = weekBar() + `<p class="lead"><b>${weekLabel(ws)}</b> 메뉴에서 자동으로 뽑은 목록입니다. 메뉴를 바꾸면 여기도 바뀝니다.
     냉장고에 있는 건 회색으로 빠져 있어요.</p>
     <div class="bar"><span>살 것 ${buy.length}가지</span><span class="tot">${won(weekCost(ws))}</span></div>`;
+  h += quickAdd("shop");
   GROUP_ORDER.forEach((g) => {
     const items = list.filter((i) => GROUP[i.c] === g);
     if (!items.length) return;
@@ -515,12 +539,7 @@ function shopView() {
     });
     h += `</div>`;
   });
-  h += `<h3 class="gh">직접 추가</h3><div class="card pad">
-    <div class="frow ingrow">${ingInput("ex.n", TMP.ex.n, "재료 이름 (예: 우유)")}
-      <input data-f="ex.q" value="1" class="w50"><select data-f="ex.u" class="w70">${UNITS.map((u) => `<option${u === "개" ? " selected" : ""}>${u}</option>`).join("")}</select>
-      <select data-f="ex.c" class="w80">${CATS.map((c) => `<option${c === "채소" ? " selected" : ""}>${c}</option>`).join("")}</select></div>
-    <button class="btn small" data-a="addextra">목록에 넣기</button></div>
-    <div class="acts"><button class="btn" data-a="buy">체크한 것 냉장고에 넣기</button></div>`;
+  h += `<div class="acts"><button class="btn" data-a="buy">체크한 것 냉장고에 넣기</button></div>`;
   return h;
 }
 
@@ -529,17 +548,29 @@ function fridgeView() {
   let h = "";
   if (over.length) h += `<p class="alert">보관 기간이 지난 재료가 ${over.length}가지 있어요. 정리하면 다음 장보기에 반영됩니다.</p>`;
   if (!S.fridge.length) h += `<p class="lead">아직 비어 있어요. 장보기에서 체크하면 여기로 들어옵니다. 아래에서 직접 넣을 수도 있어요.</p>`;
-  h += S.fridge.slice().sort((a, b) => leftOf(a) - leftOf(b)).map((f) => {
-    const L = leftOf(f), cls = L < 0 ? "bad" : L <= 2 ? "soon" : "ok";
-    return `<div class="li fr ${cls}"><span class="ln"><b>${esc(f.n)}</b>
-      <i class="dim">${esc(f.q || "")} · ${lab(f.bought)} 구입 · ${L < 0 ? -L + "일 지남" : L === 0 ? "오늘까지" : L + "일 남음"}</i></span>
-      <button class="mini" data-a="used:${f.id}">다 씀</button><button class="mini" data-a="trash:${f.id}">버림</button></div>`;
-  }).join("");
-  h += `<h3 class="gh">직접 넣기</h3><div class="card pad">
-    <div class="frow ingrow">${ingInput("fr.n", TMP.fr.n, "재료 이름")}
-      <input data-f="fr.q" placeholder="수량" class="w70">
-      <select data-f="fr.c" class="w80">${CATS.map((c) => `<option${c === "채소" ? " selected" : ""}>${c}</option>`).join("")}</select></div>
-    <button class="btn small" data-a="fridgeadd">냉장고에 넣기</button></div>`;
+  h += quickAdd("fridge");
+
+  // 재료를 품목별로 묶는다. 묶음 안에서는 남은 기간이 짧은 것부터.
+  const byGroup = {};
+  S.fridge.forEach((f) => {
+    const g = GROUP[f.c] || "기타";
+    (byGroup[g] = byGroup[g] || []).push(f);
+  });
+  GROUP_ORDER.concat("기타").forEach((g) => {
+    const list = byGroup[g]; if (!list || !list.length) return;
+    list.sort((a, b) => leftOf(a) - leftOf(b));
+    const urgent = list.filter((f) => leftOf(f) <= 2).length;
+    h += `<h3 class="gh">${g} <span class="dim">${list.length}</span>${
+      urgent ? ` <span class="warn">서두를 것 ${urgent}</span>` : ""}</h3><div class="card">`;
+    list.forEach((f) => {
+      const L = leftOf(f), cls = L < 0 ? "bad" : L <= 2 ? "soon" : "ok";
+      h += `<div class="li fr ${cls}"><span class="ln"><b>${esc(f.n)}</b>
+        <i class="dim">${esc(f.q || "")} · ${lab(f.bought)} 구입 · ${L < 0 ? -L + "일 지남" : L === 0 ? "오늘까지" : L + "일 남음"}</i></span>
+        <button class="mini" data-a="used:${f.id}">다 씀</button><button class="mini" data-a="trash:${f.id}">버림</button></div>`;
+    });
+    h += `</div>`;
+  });
+
   if (S.trash.length) {
     const rec = S.trash.filter((t) => gap(t.d, today()) < 35);
     const cnt = {}; rec.forEach((t) => cnt[t.n] = (cnt[t.n] || 0) + 1);
@@ -630,29 +661,47 @@ function menuListView() {
   return h;
 }
 
+function menuView() {
+  if (V.form) return formView();
+  // 테마·백업은 식단이 아니라 앱 설정. 둘을 오른쪽에 나란히 두고 색으로 구분한다
+  const tabs = [["list", "메뉴", ""], ["item", "재료", ""], ["theme", "테마", " alt2"], ["data", "백업", " alt"]];
+  let h = `<div class="tabs">${tabs.map(([k, l, cls]) =>
+    `<button class="tb${cls}${V.sub === k ? " on" : ""}" data-a="sub:${k}">${l}</button>`).join("")}</div>`;
+  if (V.sub === "data") return h + dataView();
+  if (V.sub === "theme") return h + themeView();
+  if (V.sub === "item") return h + itemView();
+  return h + menuListView();
+}
+
+/* 재료 수정 폼.
+   예전에는 어느 줄의 수정을 누르든 화면 맨 위에 폼이 떴다.
+   아래쪽 재료를 고치려면 위로 올라가야 해서 눌러도 아무 일 없는 것처럼 느껴진다.
+   그래서 새 재료만 위에 두고, 수정은 그 줄 자리에서 바로 펼친다. */
+function itemFormBody(f) {
+  return `<div class="fl">${f.old ? "재료 수정" : "새 재료"}</div>
+    ${ingInput("itemForm.n", f.n, "재료 이름")}
+    <div class="frow mt">
+      <select data-f="itemForm.u" class="w80">${UNITS.map((u) => `<option${u === f.u ? " selected" : ""}>${u}</option>`).join("")}</select>
+      <select data-f="itemForm.c" class="w90">${CATS.map((c) => `<option${c === f.c ? " selected" : ""}>${c}</option>`).join("")}</select>
+      <input data-f="itemForm.price" value="${f.price}" class="w80" placeholder="가격"><span class="dim">원</span>
+    </div>
+    <p class="hint">g 단위 재료는 1g당 가격, 나머지는 1단위당 가격입니다.</p>
+    <div class="acts"><button class="btn" data-a="itemsave">저장</button>
+      <button class="btn ghost" data-a="itemcancel">취소</button></div>`;
+}
+
 function itemView() {
   const idx = ingIndex();
   const q = (V.q.item || "").trim();
+  const F = V.itemForm;
   let h = `<div class="searchbar">
     <span class="material-symbols-rounded">search</span>
     <input id="q-item" data-f="q.item" value="${esc(q)}" placeholder="재료 이름으로 찾기" autocomplete="off">
     ${q ? `<button class="x" data-a="clearq:item">×</button>` : ""}
   </div>`;
 
-  if (V.itemForm) {
-    const f = V.itemForm;
-    h += `<div class="card pad">
-      <div class="fl">${f.old ? "재료 수정" : "새 재료"}</div>
-      ${ingInput("itemForm.n", f.n, "재료 이름")}
-      <div class="frow mt">
-        <select data-f="itemForm.u" class="w80">${UNITS.map((u) => `<option${u === f.u ? " selected" : ""}>${u}</option>`).join("")}</select>
-        <select data-f="itemForm.c" class="w90">${CATS.map((c) => `<option${c === f.c ? " selected" : ""}>${c}</option>`).join("")}</select>
-        <input data-f="itemForm.price" value="${f.price}" class="w80" placeholder="가격"><span class="dim">원</span>
-      </div>
-      <p class="hint">g 단위 재료는 1g당 가격, 나머지는 1단위당 가격입니다.</p>
-      <div class="acts"><button class="btn" data-a="itemsave">저장</button>
-        <button class="btn ghost" data-a="itemcancel">취소</button></div>
-    </div>`;
+  if (F && !F.old) {
+    h += `<div class="card pad">${itemFormBody(F)}</div>`;
   } else {
     h += `<div class="sortrow"><span class="dim">${Object.keys(idx).length}가지</span>
       <button class="btn small" data-a="itemnew">＋ 재료 추가</button></div>`;
@@ -665,6 +714,10 @@ function itemView() {
     const list = byGroup[g]; if (!list || !list.length) return;
     h += `<section class="grp"><h3 class="gh sticky">${g} <span class="dim">${list.length}</span></h3><div class="card">`;
     list.forEach((n) => {
+      if (F && F.old === n) {                       // 고치는 중인 줄은 그 자리에서 폼으로 바뀐다
+        h += `<div class="liedit">${itemFormBody(F)}</div>`;
+        return;
+      }
       const i = idx[n];
       h += `<div class="li"><span class="ln">${esc(n)}
         <i class="dim">${i.u === "g" ? "1g당" : "1" + i.u + "당"} · ${i.c}${i.uses ? " · 메뉴 " + i.uses + "개" : ""}${isMine(n) ? " · 직접 추가" : ""}</i></span>
@@ -677,17 +730,6 @@ function itemView() {
   return h;
 }
 
-function menuView() {
-  if (V.form) return formView();
-  // 백업은 식단과 무관한 관리 기능이라 따로 떨어뜨리고 색도 다르게 준다
-  const tabs = [["list", "메뉴", ""], ["item", "재료", ""], ["theme", "테마", ""], ["data", "백업", " alt"]];
-  let h = `<div class="tabs">${tabs.map(([k, l, cls]) =>
-    `<button class="tb${cls}${V.sub === k ? " on" : ""}" data-a="sub:${k}">${l}</button>`).join("")}</div>`;
-  if (V.sub === "data") return h + dataView();
-  if (V.sub === "theme") return h + themeView();
-  if (V.sub === "item") return h + itemView();
-  return h + menuListView();
-}
 
 /* ── 테마 고르기 ──
    미리보기는 테마 색을 인라인으로 박아 넣는다.
@@ -711,7 +753,9 @@ function thCardInner(t) {
 
 function customSpec() { return Object.assign({}, CUSTOM_DEFAULT, S.settings.custom || {}); }
 function currentTheme() {
-  const id = S.settings.theme || DEFAULT_THEME;
+  let id = S.settings.theme || DEFAULT_THEME;
+  // 없어진 테마 id가 저장돼 있으면 기본으로 되돌린다 (탭에서 선택 표시가 사라지는 것을 막는다)
+  if (id !== "custom" && !THEMES.some((t) => t.id === id)) { id = DEFAULT_THEME; S.settings.theme = id; }
   return id === "custom" ? buildTheme(customSpec()) : id;
 }
 
@@ -1139,6 +1183,7 @@ document.addEventListener("click", (e) => {
     S.fridge.push({ id: Math.random().toString(36).slice(2), n: TMP.fr.n.trim(), c: TMP.fr.c, q: TMP.fr.q, bought: today() });
     TMP.fr.n = ""; TMP.fr.q = ""; save();
   }
+  else if (a === "qa") { V.quickAdd = V.quickAdd === x ? null : (x || null); V.sug = null; }
   else if (a === "settheme") {
     S.settings.theme = x; save(); applyTheme(currentTheme());
     toast((x === "custom" ? "내 테마" : themeById(x).name) + "(으)로 바꿨어요"); }
@@ -1177,6 +1222,7 @@ document.addEventListener("click", (e) => {
     const n = decodeURIComponent(x), i = ingIndex()[n];
     V.itemForm = { n: n, u: i ? i.u : "개", c: i ? i.c : "채소", price: priceOf(n), old: n };
     V.sub = "item"; V.sug = null;
+    V.quickAdd = null;
   }
   else if (a === "itemcancel") { V.itemForm = null; V.sug = null; }
   else if (a === "itemsave") {
